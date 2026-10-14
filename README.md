@@ -1,6 +1,6 @@
 # Backend Technical Task
 
-Express API scaffold using PostgreSQL, Knex, and Redis. The application currently provides a health endpoint and the shared infrastructure required to implement the products and tickets features.
+Express API using PostgreSQL, Knex, and Redis. The application provides a cached product-list endpoint and the shared infrastructure for ticket features.
 
 ## Prerequisites
 
@@ -15,7 +15,17 @@ npm install
 docker compose up --build
 ```
 
-The API starts at `http://localhost:3000`. Swagger is available at `http://localhost:3000/api/docs` and the health endpoint is `GET /api/v1/health`.
+Docker Compose runs migrations and product seeds before starting the API. The API starts at `http://localhost:3000`, Swagger is available at `http://localhost:3000/api/docs`, and the health endpoint is `GET /api/v1/health`.
+
+## Endpoints
+
+### List products
+
+```text
+GET /api/v1/products?page=1&limit=20
+```
+
+Returns `product_code`, `product_title`, and `product_price` with pagination metadata. `page` defaults to `1`; `limit` defaults to `20` and is capped at `100`. The endpoint uses Redis cache-aside with a 120-second TTL. The `X-Cache` response header is `MISS` when PostgreSQL supplies the response and `HIT` when Redis supplies it. Each page and limit combination has its own cache entry.
 
 ## Environment variables
 
@@ -50,7 +60,7 @@ PostgreSQL is exposed to the host on port `5433` by default to avoid conflicts w
 
 ## Test environment convention
 
-Unit tests must mock repositories and cache services. Feature end-to-end tests must use a dedicated PostgreSQL database and a dedicated Redis key prefix so they never read or alter development data. Add the feature-specific test setup together with the first database-backed endpoint.
+Unit tests mock repositories and cache services. End-to-end tests verify HTTP behaviour against PostgreSQL and Redis. GitHub Actions provisions isolated PostgreSQL and Redis services for these tests. Locally, run migrations and seeds before executing the end-to-end suite.
 
 ## Verification commands
 
@@ -65,4 +75,5 @@ npm run test:e2e
 ## Documentation
 
 - `docs/api-contract.md` defines successful and failed HTTP response envelopes.
+- `docs/decisions.md` records significant design choices and their consequences.
 - `docs/commit-pr-standard.md` defines the commit, pull request, and issue conventions.

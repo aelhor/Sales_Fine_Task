@@ -9,6 +9,10 @@ import { createDatabaseClient } from './database/database.client';
 import { createHealthRouter } from './health/health.router';
 import { HealthService } from './health/health.service';
 import { createOpenApiDocument } from './openapi/openapi.document';
+import { ProductController } from './products/product.controller';
+import { KnexProductRepository } from './products/product.repository';
+import { createProductRouter } from './products/product.router';
+import { ProductService } from './products/product.service';
 
 /**
  * Holds shared infrastructure resources for controlled application shutdown.
@@ -30,11 +34,15 @@ export function createApplication(configuration: EnvironmentConfiguration): {
   const database = createDatabaseClient(configuration);
   const cacheService = new CacheService(createRedisClient(configuration));
   const healthService = new HealthService();
+  const productRepository = new KnexProductRepository(database);
+  const productService = new ProductService(productRepository, cacheService);
+  const productController = new ProductController(productService);
 
   app.disable('x-powered-by');
   app.use(express.json());
   app.use(correlationIdMiddleware);
   app.use(`/${configuration.API_PREFIX}/health`, createHealthRouter(healthService));
+  app.use(`/${configuration.API_PREFIX}/products`, createProductRouter(productController));
   app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(createOpenApiDocument(configuration)));
   app.use(errorHandlerMiddleware);
 

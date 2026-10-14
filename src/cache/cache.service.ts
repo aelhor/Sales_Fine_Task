@@ -43,6 +43,20 @@ export class CacheService {
   }
 
   /**
+   * Removes one cached value without affecting other cache entries.
+   * @param key Namespaced cache key.
+   * @returns Promise that resolves after the delete attempt.
+   */
+  async delete(key: string): Promise<void> {
+    try {
+      await this.ensureConnected();
+      await this.redis.del(key);
+    } catch (error: unknown) {
+      console.warn(`Cache delete failed for ${key}: ${this.getErrorMessage(error)}`);
+    }
+  }
+
+  /**
    * Closes the Redis client during application shutdown.
    * @returns Nothing after disconnecting the client.
    */

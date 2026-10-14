@@ -1,4 +1,24 @@
+name: backend-technical-task
+
 services:
+  migrate:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: build
+    command: npm run db:migrate && npm run db:seed
+    environment:
+      NODE_ENV: production
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: ${DB_NAME:-backend_task}
+      DB_USER: ${DB_USER:-backend_task}
+      DB_PASSWORD: ${DB_PASSWORD:-backend_task}
+      DB_SSL: "false"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
   app:
     build:
       context: .
@@ -17,6 +37,8 @@ services:
     ports:
       - "3000:3000"
     depends_on:
+      migrate:
+        condition: service_completed_successfully
       postgres:
         condition: service_healthy
       redis:
