@@ -1,7 +1,7 @@
 import request from 'supertest';
 import { createApplication, type ApplicationResources } from '../src/app';
 import type { ApiSuccessResponse } from '../src/common/dto/api-response.interface';
-import type { EnvironmentConfiguration } from '../src/config/environment.validation';
+import { createTestConfiguration } from './support/test-configuration';
 
 /**
  * Checks whether a JSON value matches the expected health endpoint envelope.
@@ -23,24 +23,11 @@ function isHealthResponse(
 }
 
 describe('Health endpoint', () => {
-  const configuration: EnvironmentConfiguration = {
-    NODE_ENV: 'test',
-    PORT: 3000,
-    API_PREFIX: 'api/v1',
-    DB_HOST: 'localhost',
-    DB_PORT: 5433,
-    DB_NAME: 'backend_task',
-    DB_USER: 'backend_task',
-    DB_PASSWORD: 'backend_task',
-    DB_SSL: false,
-    REDIS_HOST: 'localhost',
-    REDIS_PORT: 6379,
-  };
   let application: ReturnType<typeof createApplication>['app'];
   let resources: ApplicationResources;
 
   beforeAll(() => {
-    const createdApplication = createApplication(configuration);
+    const createdApplication = createApplication(createTestConfiguration());
     application = createdApplication.app;
     resources = createdApplication.resources;
   });

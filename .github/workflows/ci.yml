@@ -74,6 +74,9 @@ jobs:
       - name: Run database migrations
         run: npm run db:migrate
 
+      - name: Seed database
+        run: npm run db:seed
+
       - name: Run linter
         run: npm run lint
 

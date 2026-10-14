@@ -1,4 +1,5 @@
 import type { EnvironmentConfiguration } from '../config/environment.validation';
+import { createProductOpenApiPaths } from '../products/product.openapi';
 
 /**
  * Builds the OpenAPI document served by Swagger UI.
@@ -35,6 +36,7 @@ export function createOpenApiDocument(configuration: EnvironmentConfiguration): 
           },
         },
       },
+      ...createProductOpenApiPaths(),
     },
   };
 }
