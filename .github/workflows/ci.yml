@@ -1,0 +1,93 @@
+name: Continuous Integration
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    name: Verify application
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_DB: backend_task
+          POSTGRES_USER: backend_task
+          POSTGRES_PASSWORD: backend_task
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U backend_task -d backend_task"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      NODE_ENV: test
+      PORT: 3000
+      API_PREFIX: api/v1
+      DB_HOST: 127.0.0.1
+      DB_PORT: 5432
+      DB_NAME: backend_task
+      DB_USER: backend_task
+      DB_PASSWORD: backend_task
+      DB_SSL: "false"
+      REDIS_HOST: 127.0.0.1
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: ""
+
+    steps:
+      - name: Check out source code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run database migrations
+        run: npm run db:migrate
+
+      - name: Run linter
+        run: npm run lint
+
+      - name: Run type checks
+        run: npm run typecheck
+
+      - name: Run unit tests
+        run: npm test
+
+      - name: Run end-to-end tests
+        run: npm run test:e2e
+
+      - name: Build application
+        run: npm run build
+
+      - name: Build Docker image
+        run: docker build --tag sales-fine-task:${{ github.sha }} .
