@@ -1,6 +1,6 @@
 # Backend Technical Task
 
-Express API using PostgreSQL, Knex, and Redis. The application provides a cached product-list endpoint and the shared infrastructure for ticket features.
+Express API using PostgreSQL, Knex, and Redis. The application provides cached product listing and ticket submission and retrieval endpoints.
 
 ## Prerequisites
 
@@ -26,6 +26,22 @@ GET /api/v1/products?page=1&limit=20
 ```
 
 Returns `product_code`, `product_title`, and `product_price` with pagination metadata. `page` defaults to `1`; `limit` defaults to `20` and is capped at `100`. The endpoint uses Redis cache-aside with a 120-second TTL. The `X-Cache` response header is `MISS` when PostgreSQL supplies the response and `HIT` when Redis supplies it. Each page and limit combination has its own cache entry.
+
+### Submit a ticket
+
+```text
+POST /api/v1/tickets
+```
+
+The JSON body requires a positive integer `ticket_number`, a non-empty `subject`, and a non-empty `description`. The endpoint returns `201 Created`. Duplicate ticket numbers return `409 Conflict` with the `TICKET_NUMBER_ALREADY_EXISTS` error code.
+
+### List tickets
+
+```text
+GET /api/v1/tickets?page=1&limit=20
+```
+
+Returns tickets ordered by newest first with the same pagination metadata as the product endpoint. Ticket retrieval is intentionally not cached so recent submissions are visible immediately.
 
 ## Environment variables
 

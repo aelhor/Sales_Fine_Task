@@ -13,6 +13,10 @@ import { ProductController } from './products/product.controller';
 import { KnexProductRepository } from './products/product.repository';
 import { createProductRouter } from './products/product.router';
 import { ProductService } from './products/product.service';
+import { TicketController } from './tickets/ticket.controller';
+import { KnexTicketRepository } from './tickets/ticket.repository';
+import { createTicketRouter } from './tickets/ticket.router';
+import { TicketService } from './tickets/ticket.service';
 
 /**
  * Holds shared infrastructure resources for controlled application shutdown.
@@ -37,12 +41,16 @@ export function createApplication(configuration: EnvironmentConfiguration): {
   const productRepository = new KnexProductRepository(database);
   const productService = new ProductService(productRepository, cacheService);
   const productController = new ProductController(productService);
+  const ticketRepository = new KnexTicketRepository(database);
+  const ticketService = new TicketService(ticketRepository);
+  const ticketController = new TicketController(ticketService);
 
   app.disable('x-powered-by');
   app.use(express.json());
   app.use(correlationIdMiddleware);
   app.use(`/${configuration.API_PREFIX}/health`, createHealthRouter(healthService));
   app.use(`/${configuration.API_PREFIX}/products`, createProductRouter(productController));
+  app.use(`/${configuration.API_PREFIX}/tickets`, createTicketRouter(ticketController));
   app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(createOpenApiDocument(configuration)));
   app.use(errorHandlerMiddleware);
 

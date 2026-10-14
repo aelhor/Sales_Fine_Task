@@ -48,7 +48,7 @@ This approach coordinates requests inside one API process, which matches the cur
 
 ### Decision
 
-Ticket creation relies on the `ticket_number` unique constraint. PostgreSQL error `23505` is translated into a `409 Conflict` response. Ticket collection retrieval is paginated, ordered by newest first, and is not cached.
+Ticket creation relies on the `ticket_number` unique constraint. PostgreSQL uses `ON CONFLICT DO NOTHING`, and the service translates a non-created ticket into a `409 Conflict` response. Ticket collection retrieval is paginated, ordered by newest first, and is not cached.
 
 ### Rationale
 
