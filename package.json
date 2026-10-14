@@ -1,0 +1,55 @@
+{
+  "name": "backend-technical-task",
+  "version": "1.0.0",
+  "description": "Express backend technical task using PostgreSQL, Knex, and Redis.",
+  "private": true,
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\" \"knexfile.ts\"",
+    "start": "node -r dotenv/config dist/main",
+    "start:dev": "node --watch -r ts-node/register src/main.ts",
+    "start:prod": "node -r dotenv/config dist/main",
+    "lint": "eslint \"{src,test}/**/*.ts\" \"knexfile.ts\"",
+    "lint:fix": "npm run lint -- --fix",
+    "typecheck": "tsc --noEmit",
+    "test": "jest --runInBand",
+    "test:watch": "jest --watch",
+    "test:e2e": "jest --config ./test/jest-e2e.json --runInBand",
+    "db:migrate": "knex --knexfile knexfile.ts --client pg migrate:latest",
+    "db:rollback": "knex --knexfile knexfile.ts --client pg migrate:rollback",
+    "db:seed": "knex --knexfile knexfile.ts --client pg seed:run"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "UNLICENSED",
+  "dependencies": {
+    "@types/swagger-ui-express": "^4.1.8",
+    "dotenv": "^16.6.1",
+    "express": "^5.3.0",
+    "ioredis": "^5.11.1",
+    "knex": "^3.3.0",
+    "pg": "^8.23.1",
+    "swagger-ui-express": "^5.0.1",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.6",
+    "@types/jest": "^30.0.0",
+    "@types/node": "^22.20.5",
+    "@types/supertest": "^6.0.3",
+    "eslint": "^9.39.5",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.7",
+    "globals": "^16.5.0",
+    "jest": "^30.5.2",
+    "prettier": "^3.9.10",
+    "supertest": "^7.3.1",
+    "ts-jest": "^29.4.14",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.71.2"
+  }
+}
